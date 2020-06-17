@@ -4,7 +4,7 @@ Implementing [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway's_Game
 
 Start/stop with space, change step speed with up/down arrows.
 
-If you'd like to see it in action, you can download it from [itch.io](https://nchlswhttkr.github.io/game-of-life)!
+If you'd like to see it in action, you can [download it from itch.io](https://nchlswhttkr.itch.io/game-of-life)!
 
 ![A spaceship flying in a simulation of Conway's Game of Life](./life.gif)
 
