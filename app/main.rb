@@ -17,6 +17,11 @@ def tick args
     end
   end
 
+  if args.inputs.keyboard.key_down.backspace
+    args.state.running = false
+    args.state.cells = [false] * width * height
+  end
+
   if args.state.running and args.state.tick_count % args.state.rate == 0
     neighbours = [0] * width * height
     args.state.cells.each_index { |i|

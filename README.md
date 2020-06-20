@@ -10,7 +10,6 @@ If you'd like to see it in action, you can [download it from itch.io](https://nc
 
 <!--
 TODO
-* Clear/reset on backspace
 * Start from common templates (ie glider gun)
 * Hold click/drag to edit many cells
 * Allow wraparound (possibly toggleable)
