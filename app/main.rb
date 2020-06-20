@@ -9,11 +9,27 @@ def tick args
   args.state.running ||= false
   args.state.rate ||= 10
 
+  args.state.mouse_held ||= false
+  args.state.last_cell ||= -1
   mouse = args.inputs.mouse
-  if mouse.click
+  if mouse.down
+    args.state.mouse_held = true
+  end
+  if mouse.up
+    args.state.mouse_held = false
+  end
+  if mouse.click || args.state.mouse_held
     if x_offset <= mouse.x && mouse.x < x_offset + width * size && y_offset <= mouse.y && mouse.y < y_offset + height * size
       i = ((mouse.x - x_offset) / size).floor + width * ((mouse.y - y_offset) / size).floor
-      args.state.cells[i] = !args.state.cells[i]
+
+      # drag to new cell
+      if i != args.state.last_cell
+        args.state.cells[i] = !args.state.cells[i]
+        args.state.last_cell = i
+      # same cell from last tick, requires a click not a drag
+      elsif mouse.click
+        args.state.cells[i] = !args.state.cells[i]
+      end
     end
   end
 
