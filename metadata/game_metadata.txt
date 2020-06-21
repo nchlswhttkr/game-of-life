@@ -2,5 +2,5 @@ devid=nchlswhttkr
 devtitle=Nicholas Whittaker
 gameid=game-of-life
 gametitle=game-of-life
-version=0.1
+version=0.2
 icon=metadata/icon.png
