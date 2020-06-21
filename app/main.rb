@@ -41,35 +41,14 @@ def tick args
     args.state.cells.each.with_index { |row, x|
       row.each.with_index { |alive, y|
         if alive
-          left = x > 0
-          right = x < width - 1
-          below = y > 0
-          above = y < height - 1
-
-          if below && left
-            neighbours[x - 1][y - 1] += 1
-          end
-          if below
-            neighbours[x][y - 1] += 1
-          end
-          if below && right
-            neighbours[x + 1][y - 1] += 1
-          end
-          if left
-            neighbours[x - 1][y] += 1
-          end
-          if right
-            neighbours[x + 1][y] += 1
-          end
-          if above && left
-            neighbours[x - 1][y + 1] += 1
-          end
-          if above
-            neighbours[x][y + 1] += 1
-          end
-          if above && right
-            neighbours[x + 1][y + 1] += 1
-          end
+          neighbours[x - 1][y - 1] += 1
+          neighbours[x][y - 1] += 1
+          neighbours[(x + 1) % width][y - 1] += 1
+          neighbours[x - 1][y] += 1
+          neighbours[(x + 1) % width][y] += 1
+          neighbours[x - 1][(y + 1) % height] += 1
+          neighbours[x][(y + 1) % height] += 1
+          neighbours[(x + 1) % width][(y + 1) % height] += 1
         end
       }
     }

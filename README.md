@@ -11,7 +11,6 @@ If you'd like to see it in action, you can [download it from itch.io](https://nc
 <!--
 TODO
 * Start from common templates (ie glider gun)
-* Allow wraparound (possibly toggleable)
 -->
 
 ---
