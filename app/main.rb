@@ -2,15 +2,15 @@ def tick args
   width = 120
   height = 60
   size = [(1280 - 40) / width, (720 - 70) / height].min.floor
-  x_offset = 20 + (1280 - 40 - width * size) / 2
-  y_offset = 50 + (720 - 70 - height * size) / 2
+  x_offset = (20 + (1280 - 40 - width * size) / 2).floor
+  y_offset = (50 + (720 - 70 - height * size) / 2).floor
 
-  args.state.cells ||= [false] * width * height
+  args.state.cells ||= Array.new(width) { Array.new(height, false) }
   args.state.running ||= false
   args.state.rate ||= 10
 
   args.state.mouse_held ||= false
-  args.state.last_cell ||= -1
+  args.state.last_cell ||= [-1, -1]
   mouse = args.inputs.mouse
   if mouse.down
     args.state.mouse_held = true
@@ -18,63 +18,67 @@ def tick args
   if mouse.up
     args.state.mouse_held = false
   end
-  if mouse.click || args.state.mouse_held
+  if args.state.mouse_held
     if x_offset <= mouse.x && mouse.x < x_offset + width * size && y_offset <= mouse.y && mouse.y < y_offset + height * size
-      i = ((mouse.x - x_offset) / size).floor + width * ((mouse.y - y_offset) / size).floor
+      x = ((mouse.x - x_offset) / size).floor
+      y = ((mouse.y - y_offset) / size).floor
 
-      # drag to new cell
-      if i != args.state.last_cell
-        args.state.cells[i] = !args.state.cells[i]
-        args.state.last_cell = i
-      # same cell from last tick, requires a click not a drag
-      elsif mouse.click
-        args.state.cells[i] = !args.state.cells[i]
+      # dragged to new cell or clicked last cell
+      if [x, y] != args.state.last_cell || mouse.click
+        args.state.cells[x][y] = !args.state.cells[x][y]
+        args.state.last_cell = [x, y]
       end
     end
   end
 
   if args.inputs.keyboard.key_down.backspace
     args.state.running = false
-    args.state.cells = [false] * width * height
+    args.state.cells = Array.new(width) { Array.new(height, false) }
   end
 
   if args.state.running and args.state.tick_count % args.state.rate == 0
-    neighbours = [0] * width * height
-    args.state.cells.each_index { |i|
-      if args.state.cells[i] # alive cells notify neighbours
-        left = i % width > 0
-        right = i % width < width - 1
-        above = i / width < height - 1
-        below = i >= width
+    neighbours = Array.new(width) { Array.new(height, 0) }
+    args.state.cells.each.with_index { |row, x|
+      row.each.with_index { |alive, y|
+        if alive
+          left = x > 0
+          right = x < width - 1
+          below = y > 0
+          above = y < height - 1
 
-        if below && left
-          neighbours[i - width - 1] += 1
+          if below && left
+            neighbours[x - 1][y - 1] += 1
+          end
+          if below
+            neighbours[x][y - 1] += 1
+          end
+          if below && right
+            neighbours[x + 1][y - 1] += 1
+          end
+          if left
+            neighbours[x - 1][y] += 1
+          end
+          if right
+            neighbours[x + 1][y] += 1
+          end
+          if above && left
+            neighbours[x - 1][y + 1] += 1
+          end
+          if above
+            neighbours[x][y + 1] += 1
+          end
+          if above && right
+            neighbours[x + 1][y + 1] += 1
+          end
         end
-        if below
-          neighbours[i - width] += 1
-        end
-        if below && right
-          neighbours[i - width + 1] += 1
-        end
-        if left
-          neighbours[i - 1] += 1
-        end
-        if right
-          neighbours[i + 1] += 1
-        end
-        if above && left
-          neighbours[i + width - 1] += 1
-        end
-        if above
-          neighbours[i + width] += 1
-        end
-        if above && right
-          neighbours[i + width + 1] += 1
-        end
-      end
+      }
     }
 
-    args.state.cells.map!.with_index { |alive, i| neighbours[i] == 3 || (alive && neighbours[i] == 2) }
+    args.state.cells.each.with_index { |row, x|
+      row.map!.with_index { |alive, y|
+        neighbours[x][y] == 3 || (alive && neighbours[x][y] == 2)
+      }
+    }
   end
 
   # toggle start/stop
@@ -103,11 +107,13 @@ def tick args
 
   # draw the cells themselves, stop if none are alive
   some_surviving = false
-  args.state.cells.each.with_index { |alive, i|
-    if alive
-      args.outputs.solids << [x_offset + (i % width) * size, y_offset + (i / width).floor * size, size, size, 0, 0, 0, 255]
-      some_surviving = true
-    end
+  args.state.cells.each.with_index { |row, x|
+    row.each.with_index { |alive, y|
+      if alive
+        args.outputs.solids << [x_offset + x * size, y_offset + y * size, size, size, 0, 0, 0, 255]
+        some_surviving = true
+      end
+    }
   }
   if !some_surviving
     args.state.running = false
