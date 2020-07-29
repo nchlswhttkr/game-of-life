@@ -1,6 +1,7 @@
 def tick args
   width = 120
   height = 60
+  # make cells as big as possible but still fit within boundss
   size = [(1280 - 40) / width, (720 - 70) / height].min.floor
   x_offset = (20 + (1280 - 40 - width * size) / 2).floor
   y_offset = (50 + (720 - 70 - height * size) / 2).floor
@@ -38,8 +39,8 @@ def tick args
 
   if args.state.running and args.state.tick_count % args.state.rate == 0
     neighbours = Array.new(width) { Array.new(height, 0) }
-    args.state.cells.each.with_index { |row, x|
-      row.each.with_index { |alive, y|
+    args.state.cells.each_with_index { |row, x|
+      row.each_with_index { |alive, y|
         if alive
           neighbours[x - 1][y - 1] += 1
           neighbours[x][y - 1] += 1
@@ -53,7 +54,7 @@ def tick args
       }
     }
 
-    args.state.cells.each.with_index { |row, x|
+    args.state.cells.each_with_index { |row, x|
       row.map!.with_index { |alive, y|
         neighbours[x][y] == 3 || (alive && neighbours[x][y] == 2)
       }
@@ -70,7 +71,7 @@ def tick args
     args.state.rate += 1
   end
   if args.inputs.keyboard.key_down.up
-    args.state.rate -= args.state.rate > 1 ? 1 : 0
+    args.state.rate = [args.state.rate - 1, 1].max
   end
 
   # draw most of the page (background, text, grid)
